@@ -1,2 +1,2 @@
-# yet-another-dense-layer
-The repository implements one of the CVPR 2017 best papers, [Densely Connected Convolutional Networks](https://arxiv.org/pdf/1608.06993v5.pdf), as the final project for Brown Unversity CSCI 1470.
+# Network must have spine
+The repository implements the papers, [SpinalNet: Deep Neural Network with Gradual Input](https://arxiv.org/pdf/2007.03347.pdf), as the final project for Brown Unversity CSCI 1470.
