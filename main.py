@@ -17,7 +17,7 @@ data_path = 'quickdraw'
 num_epoch = 20
 batch_size = 256
 
-loss_fn = tf.keras.losses.CategoricalCrossentropy(from_logits=True)
+loss_fn = tf.keras.losses.CategoricalCrossentropy(from_logits=False)
 
 
 def train(model):
