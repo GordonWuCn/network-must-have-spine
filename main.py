@@ -3,8 +3,10 @@ from comet_ml import Experiment
 import tensorflow as tf
 import numpy as np
 
-from model import VGG, VGG_Spinal
-from preprocess import readData
+import matplotlib.pyplot as plt
+
+from model import VGG, VGG_Spinal, VGG_Transfer_Spinal
+from preprocess import scratch_data, transfer_data
 
 from tqdm import tqdm
 
@@ -13,11 +15,12 @@ experiment = Experiment(log_code=True)
 '''
 hyper params
 '''
-data_path = 'quickdraw'
+data_path = '/home/gordonwu/Downloads/quickdraw'
 num_epoch = 20
-batch_size = 256
+batch_size = 10
+num_of_classes = 24
 
-loss_fn = tf.keras.losses.CategoricalCrossentropy(from_logits=False)
+loss_fn = tf.keras.losses.CategoricalCrossentropy()
 
 
 def train(model):
@@ -30,11 +33,12 @@ def train(model):
                 with tf.GradientTape() as tape:
                     logits = model(data_batch)
                     loss = loss_fn(label_batch, logits)
-
                 gradient = tape.gradient(loss, model.trainable_variables)
                 model.optimizer.apply_gradients(zip(gradient, model.trainable_variables))
 
                 experiment.log_metric('loss', loss)
+                if idx % 1000 == 0:
+                    print(loss)
         if epoch % 5 == 4:
             print(test(model))
 
@@ -57,11 +61,25 @@ def test(model):
 
 
 if __name__ == '__main__':
-    train_imgs, train_labels, test_imgs, test_labels, _ = readData(data_path)
+    # train_imgs, train_labels, test_imgs, test_labels, _ = scratch_data(data_path, num_of_classes, 100)
+    train_imgs, train_labels, test_imgs, test_labels, _ = transfer_data(data_path, num_of_classes, 100)
 
-    vgg = VGG()
-    vgg_fc = VGG_Spinal()
+    # image = train_imgs[0][:,:,0]
+    # print(image.numpy())
+    # plt.imshow(image.numpy() * 255, cmap='gray')
+    # plt.show()
+    # mnist = tf.keras.datasets.mnist
+    # (train_imgs, train_labels),(test_imgs, test_labels) = mnist.load_data()
+    # train_imgs = train_imgs / 256
+    # test_imgs = test_imgs / 256
+    # train_labels = tf.one_hot(train_labels, 10)
+    # test_labels = tf.one_hot(test_labels, 10)
+    # train_imgs = tf.reshape(train_imgs, [*(train_imgs.shape), 1])
+    # test_imgs = tf.reshape(test_imgs, [*(test_imgs.shape), 1])
 
-    train(vgg)
+    # vgg = VGG(num_of_classes)
+    # vgg_spinal = VGG_Spinal(num_of_classes)
+    vgg_transfer_spinal = VGG_Transfer_Spinal(num_of_classes)
 
-    train(vgg_fc)
+    train(vgg_transfer_spinal)
+    # train(vgg_fc)
