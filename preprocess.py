@@ -1,5 +1,6 @@
 import numpy as np
 import tensorflow as tf
+import tensorflow_datasets as tfds
 import os
 import matplotlib.pyplot as plt
 
@@ -59,10 +60,33 @@ def transfer_data(path, num_classes=24, maxEty=10000, test_ratio=.3):
     return train_imgs, train_labels, test_imgs, test_labels, id2label
 
 
-if __name__ == '__main__':
-    train_imgs, train_labels, test_imgs, test_labels, id2label = transfer_data('quickdraw', 24, 1)
-    for idx in range(train_labels.shape[1]):
-        if train_labels[0, idx] == 1:
-            print(id2label[idx])
-    plt.imshow(train_imgs[0])
-    plt.show()
+def food():
+    train = tfds.load('food101', split='train', shuffle_files=True)
+    train = train.map(
+        lambda x: {'image': tf.image.resize(tf.cast(x["image"], tf.float32)/255, (224, 224)),
+                   'label': tf.one_hot(x['label'], 101)})
+    train = train.batch(32)
+
+    test = tfds.load('food101', split='validation', shuffle_files=True)
+    test = test.map(
+        lambda x: {'image': tf.image.resize(tf.cast(x["image"], tf.float32)/255, (224, 224)),
+                   'label': tf.one_hot(x['label'], 101)})
+    test = test.batch(32)
+
+    return train, test
+
+
+def horses_or_humans():
+    train = tfds.load('horses_or_humans', split='train', shuffle_files=True)
+    train = train.map(
+        lambda x: {'image': tf.image.resize(tf.cast(x["image"], tf.float32)/255, (224, 224)),
+                   'label': tf.one_hot(x['label'], 2)})
+    train = train.batch(32)
+
+    test = tfds.load('horses_or_humans', split='test', shuffle_files=True).shuffle(1024).batch(32)
+    test = test.map(
+        lambda x: {'image': tf.image.resize(tf.cast(x["image"], tf.float32)/255, (224, 224)),
+                   'label': tf.one_hot(x['label'], 2)})
+    test = test.batch(32)
+
+    return train, test

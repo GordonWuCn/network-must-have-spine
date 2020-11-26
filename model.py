@@ -78,11 +78,11 @@ class LinearLayers(tf.keras.layers.Layer):
 
 
 class SpinalLayer(tf.keras.layers.Layer):
-    def __init__(self, num_classes):
+    def __init__(self, num_classes, half_width=128, layer_width=128):
         super(SpinalLayer, self).__init__()
         self.num_classes = num_classes
-        self.Half_width = 128
-        self.layer_width = 128
+        self.Half_width = half_width
+        self.layer_width = layer_width
         self.fc_spinal_layer1 = tf.keras.Sequential()
         self.fc_spinal_layer1.add(tf.keras.layers.Dropout(0.5))
         self.fc_spinal_layer1.add(tf.keras.layers.Dense(self.layer_width))
@@ -171,21 +171,28 @@ class VGG_Spinal(tf.keras.Model):
 
 
 class VGG_Transfer_Spinal(tf.keras.Model):
-    def __init__(self, num_classes):
+    def __init__(self, num_classes, half_width=256, layer_width=512):
         super(VGG_Transfer_Spinal, self).__init__()
 
-        vgg19 = tf.keras.applications.vgg19.VGG19(weights='imagenet')
-        vgg19._layers.pop()
-        vgg19._layers.pop()
-        vgg19._layers.pop()
+        self.learning_rate = 1e-3
 
-        self.vgg = vgg19
-        self.spinal = SpinalLayer(num_classes)
+        self.vgg = tf.keras.applications.vgg19.VGG19(weights='imagenet', include_top=False)
+        self.flatten = tf.keras.layers.Flatten()
+        self.spinal = SpinalLayer(num_classes, half_width, layer_width)
 
-        self.optimizer = tf.keras.optimizers.Adam(learning_rate=.01)
+        self.vgg.trainable = False
+        self.optimizer = tf.keras.optimizers.Adam(learning_rate=self.learning_rate)
 
     def call(self, inputs):
-        return self.spinal(self.vgg(inputs))
+        x = self.vgg(inputs)
+        x = self.flatten(x)
+        return self.spinal(x)
 
     def accuracy_fn(self, labels, logits):
         return tf.reduce_mean(tf.cast(tf.equal(tf.argmax(labels, 1), tf.argmax(logits, 1)), tf.float32))
+
+
+if __name__ == '__main__':
+    vgg = tf.keras.applications.vgg19.VGG19(weights='imagenet', include_top=False)
+    print(vgg.summary())
+    print(vgg.trainable)

@@ -6,7 +6,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from model import VGG, VGG_Spinal, VGG_Transfer_Spinal
-from preprocess import scratch_data, transfer_data
+from preprocess import scratch_data, transfer_data, food, horses_or_humans
 
 from tqdm import tqdm
 
@@ -15,7 +15,8 @@ experiment = Experiment(log_code=True)
 '''
 hyper params
 '''
-data_path = '/home/gordonwu/Downloads/quickdraw'
+# data_path = '/home/gordonwu/Downloads/quickdraw'
+data_path = 'quickdraw'
 num_epoch = 20
 batch_size = 10
 num_of_classes = 24
@@ -60,9 +61,69 @@ def test(model):
     return accuracy
 
 
+def train_food():
+    model = VGG_Transfer_Spinal(101)
+    train_imgs, test_imgs = food()
+    for epoch in range(num_epoch):
+        train_imgs.shuffle(1024)
+        with experiment.train():
+            for example in tqdm(train_imgs):
+                with tf.GradientTape() as tape:
+                    logits = model(example["image"])
+                    loss = loss_fn(example['label'], logits)
+                gradient = tape.gradient(loss, model.trainable_variables)
+                model.optimizer.apply_gradients(zip(gradient, model.trainable_variables))
+                experiment.log_metric('loss', loss)
+        if epoch % 5 == 4:
+            test_food(model, test_imgs)
+
+
+def test_food(model, test_imgs):
+    with experiment.test():
+        accuracy_sum = 0
+        batch_cnt = 0
+        for example in tqdm(test_imgs):
+            logits = model(example["image"])
+            accuracy_sum += model.accuracy_fn(example['label'], logits)
+            batch_cnt += 1
+        accuracy = accuracy_sum / batch_cnt
+        experiment.log_metric('accuracy', accuracy)
+    print(accuracy)
+
+
+def train_hh():
+    model = VGG_Transfer_Spinal(2)
+    train_imgs, test_imgs = horses_or_humans()
+    for epoch in range(num_epoch):
+        train_imgs.shuffle(1024)
+        with experiment.train():
+            for example in tqdm(train_imgs):
+                with tf.GradientTape() as tape:
+                    logits = model(example["image"])
+                    loss = loss_fn(example['label'], logits)
+                gradient = tape.gradient(loss, model.trainable_variables)
+                model.optimizer.apply_gradients(zip(gradient, model.trainable_variables))
+                experiment.log_metric('loss', loss)
+        if epoch % 5 == 4:
+            test_hh(model, test_imgs)
+
+
+def test_hh(model, test_imgs):
+    with experiment.test():
+        accuracy_sum = 0
+        batch_cnt = 0
+        for example in tqdm(test_imgs):
+            logits = model(example["image"])
+            accuracy_sum += model.accuracy_fn(example['label'], logits)
+            batch_cnt += 1
+        accuracy = accuracy_sum / batch_cnt
+        experiment.log_metric('accuracy', accuracy)
+    print(accuracy)
+
+
 if __name__ == '__main__':
     # train_imgs, train_labels, test_imgs, test_labels, _ = scratch_data(data_path, num_of_classes, 100)
-    train_imgs, train_labels, test_imgs, test_labels, _ = transfer_data(data_path, num_of_classes, 100)
+    # train_imgs, train_labels, test_imgs, test_labels, _ = transfer_data(data_path, num_of_classes, 100)
 
     # image = train_imgs[0][:,:,0]
     # print(image.numpy())
@@ -79,7 +140,9 @@ if __name__ == '__main__':
 
     # vgg = VGG(num_of_classes)
     # vgg_spinal = VGG_Spinal(num_of_classes)
-    vgg_transfer_spinal = VGG_Transfer_Spinal(num_of_classes)
-
-    train(vgg_transfer_spinal)
+    # vgg_transfer_spinal = VGG_Transfer_Spinal(num_of_classes)
+    #
+    # train(vgg_transfer_spinal)
     # train(vgg_fc)
+    # train_food()
+    train_hh()

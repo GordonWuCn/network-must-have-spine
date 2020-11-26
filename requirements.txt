@@ -2,3 +2,4 @@ tensorflow==2.3.0
 numpy==1.19
 tqdm==4.52.0
 comet_ml==3.2.5
+tensorflow_datasets==4.1.0
