@@ -176,15 +176,15 @@ class VGG_Transfer_Spinal(tf.keras.Model):
 
         self.learning_rate = 1e-3
 
-        self.vgg = tf.keras.applications.vgg19.VGG19(weights='imagenet', include_top=False)
+        self.pretrained = tf.keras.applications.vgg19.VGG19(weights='imagenet', include_top=False)
         self.flatten = tf.keras.layers.Flatten()
         self.spinal = SpinalLayer(num_classes, half_width, layer_width)
 
-        self.vgg.trainable = False
+        self.pretrained.trainable = False
         self.optimizer = tf.keras.optimizers.Adam(learning_rate=self.learning_rate)
 
     def call(self, inputs):
-        x = self.vgg(inputs)
+        x = self.pretrained(inputs)
         x = self.flatten(x)
         return self.spinal(x)
 
@@ -198,15 +198,15 @@ class DenseNet_Transfer_Spinal(tf.keras.Model):
 
         self.learning_rate = 1e-3
 
-        self.denseNet = tf.keras.applications.densenet.DenseNet121(weights='imagenet', include_top=False)
+        self.pretrained = tf.keras.applications.densenet.DenseNet121(weights='imagenet', include_top=False)
         self.pool = tf.keras.layers.GlobalAveragePooling2D()
         self.spinal = SpinalLayer(num_classes, half_width, layer_width)
 
-        self.denseNet.trainable = False
+        self.pretrained.trainable = False
         self.optimizer = tf.keras.optimizers.Adam(learning_rate=self.learning_rate)
 
     def call(self, inputs):
-        x = self.denseNet(inputs)
+        x = self.pretrained(inputs)
         x = self.pool(x)
         return self.spinal(x)
 

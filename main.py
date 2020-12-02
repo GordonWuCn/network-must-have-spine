@@ -17,7 +17,7 @@ hyper params
 '''
 # data_path = '/home/gordonwu/Downloads/quickdraw'
 data_path = 'quickdraw'
-num_epoch = 20
+num_epoch = 30
 batch_size = 10
 num_of_classes = 24
 
@@ -74,6 +74,9 @@ def train_transfer(model, train_imgs, test_imgs):
                 experiment.log_metric('loss', loss)
         if epoch % 5 == 4:
             test_transfer(model, test_imgs)
+        if epoch == 19:
+            model.pretrained.trainable = True
+            model.optimizer = tf.keras.optimizers.Adam(learning_rate=1e-5)
 
 
 def test_transfer(model, test_imgs):
