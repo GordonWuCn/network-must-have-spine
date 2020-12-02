@@ -83,7 +83,7 @@ def horses_or_humans():
                    'label': tf.one_hot(x['label'], 2)})
     train = train.batch(32)
 
-    test = tfds.load('horses_or_humans', split='test', shuffle_files=True).shuffle(1024).batch(32)
+    test = tfds.load('horses_or_humans', split='test', shuffle_files=True)
     test = test.map(
         lambda x: {'image': tf.image.resize(tf.cast(x["image"], tf.float32)/255, (224, 224)),
                    'label': tf.one_hot(x['label'], 2)})
@@ -99,7 +99,7 @@ def cifar_10():
                    'label': tf.one_hot(x['label'], 10)})
     train = train.batch(32)
 
-    test = tfds.load('cifar10', split='test', shuffle_files=True).shuffle(1024).batch(32)
+    test = tfds.load('cifar10', split='test', shuffle_files=True)
     test = test.map(
         lambda x: {'image': tf.image.resize(tf.cast(x["image"], tf.float32) / 255, (224, 224)),
                    'label': tf.one_hot(x['label'], 10)})
