@@ -90,3 +90,25 @@ def horses_or_humans():
     test = test.batch(32)
 
     return train, test
+
+
+def cifar_10():
+    train = tfds.load('cifar10', split='train', shuffle_files=True)
+    train = train.map(
+        lambda x: {'image': tf.image.resize(tf.cast(x["image"], tf.float32) / 255, (224, 224)),
+                   'label': tf.one_hot(x['label'], 10)})
+    train = train.batch(32)
+
+    test = tfds.load('cifar10', split='test', shuffle_files=True).shuffle(1024).batch(32)
+    test = test.map(
+        lambda x: {'image': tf.image.resize(tf.cast(x["image"], tf.float32) / 255, (224, 224)),
+                   'label': tf.one_hot(x['label'], 10)})
+    test = test.batch(32)
+
+    return train, test
+
+
+if __name__ == '__main__':
+    train, test = cifar_10()
+    print(len(train))
+    print(len(test))

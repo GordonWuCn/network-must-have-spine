@@ -192,7 +192,28 @@ class VGG_Transfer_Spinal(tf.keras.Model):
         return tf.reduce_mean(tf.cast(tf.equal(tf.argmax(labels, 1), tf.argmax(logits, 1)), tf.float32))
 
 
+class DenseNet_Transfer_Spinal(tf.keras.Model):
+    def __init__(self, num_classes, half_width=256, layer_width=512):
+        super(DenseNet_Transfer_Spinal, self).__init__()
+
+        self.learning_rate = 1e-3
+
+        self.denseNet = tf.keras.applications.densenet.DenseNet121(weights='imagenet', include_top=False)
+        self.pool = tf.keras.layers.GlobalAveragePooling2D()
+        self.spinal = SpinalLayer(num_classes, half_width, layer_width)
+
+        self.denseNet.trainable = False
+        self.optimizer = tf.keras.optimizers.Adam(learning_rate=self.learning_rate)
+
+    def call(self, inputs):
+        x = self.denseNet(inputs)
+        x = self.pool(x)
+        return self.spinal(x)
+
+    def accuracy_fn(self, labels, logits):
+        return tf.reduce_mean(tf.cast(tf.equal(tf.argmax(labels, 1), tf.argmax(logits, 1)), tf.float32))
+
+
 if __name__ == '__main__':
-    vgg = tf.keras.applications.vgg19.VGG19(weights='imagenet', include_top=False)
-    print(vgg.summary())
-    print(vgg.trainable)
+    denseNet = tf.keras.applications.densenet.DenseNet121(weights='imagenet', include_top=False)
+    print(denseNet.summary())

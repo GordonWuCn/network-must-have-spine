@@ -5,8 +5,8 @@ import numpy as np
 
 import matplotlib.pyplot as plt
 
-from model import VGG, VGG_Spinal, VGG_Transfer_Spinal
-from preprocess import scratch_data, transfer_data, food, horses_or_humans
+from model import VGG, VGG_Spinal, VGG_Transfer_Spinal, DenseNet_Transfer_Spinal
+from preprocess import scratch_data, transfer_data, food, horses_or_humans, cifar_10
 
 from tqdm import tqdm
 
@@ -61,9 +61,7 @@ def test(model):
     return accuracy
 
 
-def train_food():
-    model = VGG_Transfer_Spinal(101)
-    train_imgs, test_imgs = food()
+def train_transfer(model, train_imgs, test_imgs):
     for epoch in range(num_epoch):
         train_imgs.shuffle(1024)
         with experiment.train():
@@ -75,10 +73,10 @@ def train_food():
                 model.optimizer.apply_gradients(zip(gradient, model.trainable_variables))
                 experiment.log_metric('loss', loss)
         if epoch % 5 == 4:
-            test_food(model, test_imgs)
+            test_transfer(model, test_imgs)
 
 
-def test_food(model, test_imgs):
+def test_transfer(model, test_imgs):
     with experiment.test():
         accuracy_sum = 0
         batch_cnt = 0
@@ -89,36 +87,24 @@ def test_food(model, test_imgs):
         accuracy = accuracy_sum / batch_cnt
         experiment.log_metric('accuracy', accuracy)
     print(accuracy)
+
+
+def train_food():
+    model = VGG_Transfer_Spinal(101)
+    train_imgs, test_imgs = food()
+    train_transfer(model, train_imgs, test_imgs)
 
 
 def train_hh():
     model = VGG_Transfer_Spinal(2)
     train_imgs, test_imgs = horses_or_humans()
-    for epoch in range(num_epoch):
-        train_imgs.shuffle(1024)
-        with experiment.train():
-            for example in tqdm(train_imgs):
-                with tf.GradientTape() as tape:
-                    logits = model(example["image"])
-                    loss = loss_fn(example['label'], logits)
-                gradient = tape.gradient(loss, model.trainable_variables)
-                model.optimizer.apply_gradients(zip(gradient, model.trainable_variables))
-                experiment.log_metric('loss', loss)
-        if epoch % 5 == 4:
-            test_hh(model, test_imgs)
+    train_transfer(model, train_imgs, test_imgs)
 
 
-def test_hh(model, test_imgs):
-    with experiment.test():
-        accuracy_sum = 0
-        batch_cnt = 0
-        for example in tqdm(test_imgs):
-            logits = model(example["image"])
-            accuracy_sum += model.accuracy_fn(example['label'], logits)
-            batch_cnt += 1
-        accuracy = accuracy_sum / batch_cnt
-        experiment.log_metric('accuracy', accuracy)
-    print(accuracy)
+def train_cifar_10():
+    model = DenseNet_Transfer_Spinal(10)
+    train_imgs, test_imgs = cifar_10()
+    train_transfer(model, train_imgs, test_imgs)
 
 
 if __name__ == '__main__':
@@ -145,4 +131,5 @@ if __name__ == '__main__':
     # train(vgg_transfer_spinal)
     # train(vgg_fc)
     # train_food()
-    train_hh()
+    # train_hh()
+    train_cifar_10()
