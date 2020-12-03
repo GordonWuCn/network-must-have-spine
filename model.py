@@ -171,14 +171,14 @@ class VGG_Spinal(tf.keras.Model):
 
 
 class VGG_Transfer_Spinal(tf.keras.Model):
-    def __init__(self, num_classes, half_width=256, layer_width=512):
+    def __init__(self, num_classes, is_spinal=True, half_width=256, layer_width=512):
         super(VGG_Transfer_Spinal, self).__init__()
 
         self.learning_rate = 1e-3
 
         self.pretrained = tf.keras.applications.vgg19.VGG19(weights='imagenet', include_top=False)
         self.flatten = tf.keras.layers.Flatten()
-        self.spinal = SpinalLayer(num_classes, half_width, layer_width)
+        self.linear = SpinalLayer(num_classes, half_width, layer_width) if is_spinal else tf.keras.layers.Dense(num_classes)
 
         self.pretrained.trainable = False
         self.optimizer = tf.keras.optimizers.Adam(learning_rate=self.learning_rate)
@@ -186,21 +186,21 @@ class VGG_Transfer_Spinal(tf.keras.Model):
     def call(self, inputs):
         x = self.pretrained(inputs)
         x = self.flatten(x)
-        return self.spinal(x)
+        return self.linear(x)
 
     def accuracy_fn(self, labels, logits):
         return tf.reduce_mean(tf.cast(tf.equal(tf.argmax(labels, 1), tf.argmax(logits, 1)), tf.float32))
 
 
 class DenseNet_Transfer_Spinal(tf.keras.Model):
-    def __init__(self, num_classes, half_width=256, layer_width=512):
+    def __init__(self, num_classes, is_spinal=True, half_width=256, layer_width=512):
         super(DenseNet_Transfer_Spinal, self).__init__()
 
         self.learning_rate = 1e-3
 
         self.pretrained = tf.keras.applications.densenet.DenseNet121(weights='imagenet', include_top=False)
         self.pool = tf.keras.layers.GlobalAveragePooling2D()
-        self.spinal = SpinalLayer(num_classes, half_width, layer_width)
+        self.linear = SpinalLayer(num_classes, half_width, layer_width) if is_spinal else tf.keras.layers.Dense(num_classes)
 
         self.pretrained.trainable = False
         self.optimizer = tf.keras.optimizers.Adam(learning_rate=self.learning_rate)
@@ -208,12 +208,17 @@ class DenseNet_Transfer_Spinal(tf.keras.Model):
     def call(self, inputs):
         x = self.pretrained(inputs)
         x = self.pool(x)
-        return self.spinal(x)
+        return self.linear(x)
 
     def accuracy_fn(self, labels, logits):
         return tf.reduce_mean(tf.cast(tf.equal(tf.argmax(labels, 1), tf.argmax(logits, 1)), tf.float32))
 
 
 if __name__ == '__main__':
-    denseNet = tf.keras.applications.densenet.DenseNet121(weights='imagenet', include_top=False)
-    print(denseNet.summary())
+    vgg = tf.keras.applications.vgg19.VGG19(weights='imagenet', include_top=False)
+    flatten = tf.keras.layers.Flatten()
+    test_img = tf.zeros((1, 224, 224, 3))
+
+    output = flatten(vgg(test_img))
+    print(output.shape)
+    # print(denseNet.summary())
