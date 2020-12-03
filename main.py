@@ -93,19 +93,19 @@ def test_transfer(model, test_imgs):
 
 
 def train_food():
-    model = VGG_Transfer_Spinal(101)
+    model = VGG_Transfer_Spinal(101, 25088//2)
     train_imgs, test_imgs = food()
     train_transfer(model, train_imgs, test_imgs)
 
 
 def train_hh():
-    model = VGG_Transfer_Spinal(2)
+    model = VGG_Transfer_Spinal(2, 25088//2)
     train_imgs, test_imgs = horses_or_humans()
     train_transfer(model, train_imgs, test_imgs)
 
 
 def train_cifar_10():
-    model = DenseNet_Transfer_Spinal(10)
+    model = DenseNet_Transfer_Spinal(10, 512, 20)
     train_imgs, test_imgs = cifar_10()
     train_transfer(model, train_imgs, test_imgs)
 
