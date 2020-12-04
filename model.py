@@ -200,7 +200,13 @@ class DenseNet_Transfer_Spinal(tf.keras.Model):
 
         self.pretrained = tf.keras.applications.densenet.DenseNet121(weights='imagenet', include_top=False)
         self.pool = tf.keras.layers.GlobalAveragePooling2D()
-        self.linear = SpinalLayer(num_classes, half_width, layer_width) if is_spinal else tf.keras.layers.Dense(num_classes)
+        if is_spinal:
+            self.linear = SpinalLayer(num_classes, half_width, layer_width)
+        else:
+            self.linear = tf.keras.Sequential()
+            self.linear.add(tf.keras.layers.Dense(half_width * 2, activation='relu'))
+            self.linear.add(tf.keras.layers.Dense(half_width * 2, activation='relu'))
+            self.linear.add(tf.keras.layers.Dense(num_classes))
 
         self.pretrained.trainable = False
         self.optimizer = tf.keras.optimizers.Adam(learning_rate=self.learning_rate)
