@@ -15,10 +15,10 @@ experiment = Experiment(log_code=True)
 '''
 hyper params
 '''
-# data_path = '/home/gordonwu/Downloads/quickdraw'
-data_path = 'quickdraw'
+data_path = '/home/gordonwu/Downloads/quickdraw'
+# data_path = 'quickdraw'
 num_epoch = 30
-batch_size = 10
+batch_size = 100
 num_of_classes = 24
 
 loss_fn = tf.keras.losses.CategoricalCrossentropy()
@@ -111,8 +111,8 @@ def train_cifar_10(is_spinal=True):
 
 
 if __name__ == '__main__':
-    # train_imgs, train_labels, test_imgs, test_labels, _ = scratch_data(data_path, num_of_classes, 100)
-    # train_imgs, train_labels, test_imgs, test_labels, _ = transfer_data(data_path, num_of_classes, 100)
+    train_imgs, train_labels, test_imgs, test_labels, _ = scratch_data(data_path, num_of_classes, 10000)
+    train_imgs, train_labels, test_imgs, test_labels, _ = transfer_data(data_path, num_of_classes, 10000)
 
     # image = train_imgs[0][:,:,0]
     # print(image.numpy())
@@ -128,9 +128,9 @@ if __name__ == '__main__':
     # test_imgs = tf.reshape(test_imgs, [*(test_imgs.shape), 1])
 
     # vgg = VGG(num_of_classes)
-    # vgg_spinal = VGG_Spinal(num_of_classes)
+    vgg_spinal = VGG_Spinal(num_of_classes)
     # vgg_transfer_spinal = VGG_Transfer_Spinal(num_of_classes)
-    #
+    train(vgg_spinal)
     # train(vgg_transfer_spinal)
     # train(vgg_fc)
     # train_food()
