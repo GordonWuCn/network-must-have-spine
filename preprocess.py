@@ -60,6 +60,24 @@ def transfer_data(path, num_classes=24, maxEty=10000, test_ratio=.3):
     return train_imgs, train_labels, test_imgs, test_labels, id2label
 
 
+def transfer_data_large(path, num_classes=24, maxEty=10000, test_ratio=.3):
+    def transform(image):
+        image = tf.reshape(image, [1, *image.shape])
+        image = tf.image.resize(image, [224, 224])
+        image = tf.image.grayscale_to_rgb(image)
+        image = tf.keras.applications.vgg19.preprocess_input(image)
+        return image[0]
+
+    train_imgs, train_labels, test_imgs, test_labels, id2label = readData(path, num_classes, maxEty, test_ratio)
+
+    train_imgs = tf.data.Dataset.from_tensor_slices(train_imgs)
+    test_imgs = tf.data.Dataset.from_tensor_slices(test_imgs)
+    train_imgs.map(transform, 6)
+    test_imgs.map(transform, 6)
+
+    return train_imgs, train_labels, test_imgs, test_labels, id2label
+
+
 def food():
     train = tfds.load('food101', split='train', shuffle_files=True)
     train = train.map(
