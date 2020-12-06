@@ -45,17 +45,33 @@ def scratch_data(path, num_classes=24, maxEty=10000, test_ratio=.3):
 
     return train_imgs, train_labels, test_imgs, test_labels, id2label
 
+def scratch_data_large(path, num_classes=24, maxEty=10000, test_ratio=.3):
+    def transform(image):
+        image = tf.reshape(image, [1, *image.shape])
+        image = tf.cast(image, tf.float32) / 256
+        return image[0]
+
+    train_imgs, train_labels, test_imgs, test_labels, id2label = readData(path, num_classes, maxEty, test_ratio)
+
+    train_imgs = tf.data.Dataset.from_tensor_slices(train_imgs)
+    test_imgs = tf.data.Dataset.from_tensor_slices(test_imgs)
+    train_imgs = train_imgs.map(transform)
+    test_imgs = test_imgs.map(transform)
+
+    return train_imgs, train_labels, test_imgs, test_labels, id2label
 
 def transfer_data(path, num_classes=24, maxEty=10000, test_ratio=.3):
     train_imgs, train_labels, test_imgs, test_labels, id2label = readData(path, num_classes, maxEty, test_ratio)
 
     train_imgs = tf.image.resize(train_imgs, [224, 224])
-    train_imgs = tf.image.grayscale_to_rgb(train_imgs)
+    train_imgs = tf.concat([train_imgs] * 3, axis=3)
     train_imgs = tf.keras.applications.vgg19.preprocess_input(train_imgs)
 
+
     test_imgs = tf.image.resize(test_imgs, [224, 224])
-    test_imgs = tf.image.grayscale_to_rgb(test_imgs)
+    test_imgs = tf.concat([test_imgs] * 3, axis=3)
     test_imgs = tf.keras.applications.vgg19.preprocess_input(test_imgs)
+
 
     return train_imgs, train_labels, test_imgs, test_labels, id2label
 

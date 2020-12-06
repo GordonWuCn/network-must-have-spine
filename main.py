@@ -6,7 +6,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from model import VGG, VGG_Spinal, VGG_Transfer_Spinal, DenseNet_Transfer_Spinal
-from preprocess import scratch_data, transfer_data, food, horses_or_humans, cifar_10, transfer_data_large
+from preprocess import scratch_data, transfer_data, food, horses_or_humans, cifar_10, transfer_data_large, scratch_data_large
 
 from tqdm import tqdm
 
@@ -15,8 +15,8 @@ experiment = Experiment(log_code=True)
 '''
 hyper params
 '''
-data_path = '/home/gordonwu/Downloads/quickdraw'
-# data_path = 'quickdraw'
+# data_path = '/home/gordonwu/Downloads/quickdraw'
+data_path = '/home/gordonwu0722/quickdraw'
 num_epoch = 1
 batch_size = 100
 num_of_classes = 24
@@ -49,7 +49,7 @@ def train(model):
 def train_large(model):
     for epoch in range(num_epoch):
         with experiment.train():
-            for idx, data_batch in tqdm(enumerate(train_imgs)):
+            for idx, data_batch in tqdm(enumerate(train_imgs), total = 1680):
                 label_batch = train_labels[idx: idx+batch_size]
 
                 with tf.GradientTape() as tape:
@@ -59,10 +59,10 @@ def train_large(model):
                 model.optimizer.apply_gradients(zip(gradient, model.trainable_variables))
 
                 experiment.log_metric('loss', loss)
-                if idx % 1000 == 0:
+                if idx % 10 == 0:
                     print(loss)
         if epoch % 5 == 4:
-            print(test(model))
+            print(test_large(model))
         if epoch == 19:
             model.pretrained.trainable = True
             model.optimizer = tf.keras.optimizers.Adam(learning_rate=1e-5)
@@ -149,9 +149,10 @@ def train_cifar_10(is_spinal=True):
 
 
 if __name__ == '__main__':
-    # train_imgs, train_labels, test_imgs, test_labels, _ = scratch_data(data_path, num_of_classes, 10000)
-    train_imgs, train_labels, test_imgs, test_labels, _ = transfer_data(data_path, num_of_classes, 1000)
-
+    train_imgs, train_labels, test_imgs, test_labels, _ = scratch_data_large(data_path, num_of_classes, 10000)
+    #train_imgs, train_labels, test_imgs, test_labels, _ = transfer_data_large(data_path, num_of_classes, 10000)
+    train_imgs = train_imgs.batch(batch_size)
+    #train_imgs = train_imgs.prefetch(5)
     # image = train_imgs[0][:,:,0]
     # print(image.numpy())
     # plt.imshow(image.numpy() * 255, cmap='gray')
@@ -166,10 +167,10 @@ if __name__ == '__main__':
     # test_imgs = tf.reshape(test_imgs, [*(test_imgs.shape), 1])
 
     # vgg = VGG(num_of_classes)
-    # vgg_spinal = VGG_Spinal(num_of_classes)
-    vgg_transfer_spinal = VGG_Transfer_Spinal(num_of_classes, True, 25088//2, 100)
-    # train(vgg_spinal)
-    train(vgg_transfer_spinal)
+    vgg_spinal = VGG_Spinal(num_of_classes)
+    #vgg_transfer_spinal = VGG_Transfer_Spinal(num_of_classes, True, 25088//2, 100)
+    train_large(vgg_spinal)
+    #train_large(vgg_transfer_spinal)
     # train(vgg_fc)
     # train_food()
     # train_hh()
