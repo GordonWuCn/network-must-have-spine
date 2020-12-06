@@ -15,9 +15,9 @@ experiment = Experiment(log_code=True)
 '''
 hyper params
 '''
-data_path = '/home/gordonwu/Downloads/quickdraw'
-# data_path = 'quickdraw'
-num_epoch = 30
+#data_path = '/home/gordonwu/Downloads/quickdraw'
+data_path = '/home/gordonwu0722/quickdraw'
+num_epoch = 100
 batch_size = 100
 num_of_classes = 24
 
@@ -112,7 +112,7 @@ def train_cifar_10(is_spinal=True):
 
 if __name__ == '__main__':
     train_imgs, train_labels, test_imgs, test_labels, _ = scratch_data(data_path, num_of_classes, 10000)
-    train_imgs, train_labels, test_imgs, test_labels, _ = transfer_data(data_path, num_of_classes, 10000)
+    #train_imgs, train_labels, test_imgs, test_labels, _ = transfer_data(data_path, num_of_classes, 10000)
 
     # image = train_imgs[0][:,:,0]
     # print(image.numpy())
@@ -130,9 +130,11 @@ if __name__ == '__main__':
     # vgg = VGG(num_of_classes)
     vgg_spinal = VGG_Spinal(num_of_classes)
     # vgg_transfer_spinal = VGG_Transfer_Spinal(num_of_classes)
+    vgg_spinal.load_weights('./checkpoints')
     train(vgg_spinal)
+    vgg_spinal.save_weights('./checkpoints')
     # train(vgg_transfer_spinal)
     # train(vgg_fc)
     # train_food()
     # train_hh()
-    train_cifar_10()
+    # train_cifar_10()
