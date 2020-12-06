@@ -42,6 +42,9 @@ def train(model):
                     print(loss)
         if epoch % 5 == 4:
             print(test(model))
+        if epoch == 19:
+            model.pretrained.trainable = True
+            model.optimizer = tf.keras.optimizers.Adam(learning_rate=1e-5)
 
 def train_large(model):
     for epoch in range(num_epoch):
@@ -147,9 +150,8 @@ def train_cifar_10(is_spinal=True):
 
 if __name__ == '__main__':
     # train_imgs, train_labels, test_imgs, test_labels, _ = scratch_data(data_path, num_of_classes, 10000)
-    train_imgs, train_labels, test_imgs, test_labels, _ = transfer_data_large(data_path, num_of_classes, 10000)
+    train_imgs, train_labels, test_imgs, test_labels, _ = transfer_data(data_path, num_of_classes, 1000)
 
-    train_imgs.batch(batch_size)
     # image = train_imgs[0][:,:,0]
     # print(image.numpy())
     # plt.imshow(image.numpy() * 255, cmap='gray')
@@ -167,7 +169,7 @@ if __name__ == '__main__':
     # vgg_spinal = VGG_Spinal(num_of_classes)
     vgg_transfer_spinal = VGG_Transfer_Spinal(num_of_classes, True, 25088//2, 100)
     # train(vgg_spinal)
-    train_large(vgg_transfer_spinal)
+    train(vgg_transfer_spinal)
     # train(vgg_fc)
     # train_food()
     # train_hh()

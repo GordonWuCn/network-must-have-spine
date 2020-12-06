@@ -54,7 +54,7 @@ def transfer_data(path, num_classes=24, maxEty=10000, test_ratio=.3):
     train_imgs = tf.keras.applications.vgg19.preprocess_input(train_imgs)
 
     test_imgs = tf.image.resize(test_imgs, [224, 224])
-    test_imgs = tf.concat([test_imgs] * 3, axis=3)
+    test_imgs = tf.image.grayscale_to_rgb(test_imgs)
     test_imgs = tf.keras.applications.vgg19.preprocess_input(test_imgs)
 
     return train_imgs, train_labels, test_imgs, test_labels, id2label
@@ -72,8 +72,8 @@ def transfer_data_large(path, num_classes=24, maxEty=10000, test_ratio=.3):
 
     train_imgs = tf.data.Dataset.from_tensor_slices(train_imgs)
     test_imgs = tf.data.Dataset.from_tensor_slices(test_imgs)
-    train_imgs.map(transform, 6)
-    test_imgs.map(transform, 6)
+    train_imgs = train_imgs.map(transform, 6)
+    test_imgs = test_imgs.map(transform, 6)
 
     return train_imgs, train_labels, test_imgs, test_labels, id2label
 
