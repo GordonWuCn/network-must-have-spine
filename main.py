@@ -135,4 +135,4 @@ if __name__ == '__main__':
     # train(vgg_fc)
     # train_food()
     # train_hh()
-    train_cifar_10()
+    # train_cifar_10()
