@@ -52,7 +52,7 @@ def scratch_data_large(path, num_classes=24, maxEty=10000, test_ratio=.3):
         return image[0]
 
     train_imgs, train_labels, test_imgs, test_labels, id2label = readData(path, num_classes, maxEty, test_ratio)
-
+    print(id2label)
     train_imgs = tf.data.Dataset.from_tensor_slices(train_imgs)
     test_imgs = tf.data.Dataset.from_tensor_slices(test_imgs)
     train_imgs = train_imgs.map(transform)

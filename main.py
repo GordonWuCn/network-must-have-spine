@@ -15,8 +15,8 @@ experiment = Experiment(log_code=True)
 '''
 hyper params
 '''
-# data_path = '/home/gordonwu/Downloads/quickdraw'
-data_path = '/home/gordonwu0722/quickdraw'
+data_path = '/home/gordonwu/Downloads/quickdraw'
+# data_path = '/home/gordonwu0722/quickdraw'
 num_epoch = 1
 batch_size = 100
 num_of_classes = 24
@@ -30,7 +30,6 @@ def train(model):
             for idx in tqdm(range(0, train_imgs.shape[0] - batch_size, batch_size)):
                 data_batch = train_imgs[idx: idx+batch_size]
                 label_batch = train_labels[idx: idx+batch_size]
-
                 with tf.GradientTape() as tape:
                     logits = model(data_batch)
                     loss = loss_fn(label_batch, logits)
@@ -50,8 +49,7 @@ def train_large(model):
     for epoch in range(num_epoch):
         with experiment.train():
             for idx, data_batch in tqdm(enumerate(train_imgs), total = 1680):
-                label_batch = train_labels[idx: idx+batch_size]
-
+                label_batch = train_labels[idx * batch_size: idx * batch_size + batch_size]
                 with tf.GradientTape() as tape:
                     logits = model(data_batch)
                     loss = loss_fn(label_batch, logits)
@@ -149,14 +147,18 @@ def train_cifar_10(is_spinal=True):
 
 
 if __name__ == '__main__':
-    train_imgs, train_labels, test_imgs, test_labels, _ = scratch_data_large(data_path, num_of_classes, 10000)
-    #train_imgs, train_labels, test_imgs, test_labels, _ = transfer_data_large(data_path, num_of_classes, 10000)
+    # train_imgs, train_labels, test_imgs, test_labels, _ = scratch_data(data_path, num_of_classes, 10000)
+    # train_imgs, train_labels, test_imgs, test_labels, _ = scratch_data_large(data_path, num_of_classes, 10000)
+    train_imgs, train_labels, test_imgs, test_labels, _ = transfer_data_large(data_path, num_of_classes, 10000)
     train_imgs = train_imgs.batch(batch_size)
-    #train_imgs = train_imgs.prefetch(5)
-    # image = train_imgs[0][:,:,0]
-    # print(image.numpy())
-    # plt.imshow(image.numpy() * 255, cmap='gray')
-    # plt.show()
+    # train_imgs = train_imgs.prefetch(5)
+    # for j, datas in enumerate(train_imgs):
+    #     for i, data in enumerate(datas):
+    #         image = data[:,:,0]
+    #         label_batch = train_labels[j: j+batch_size]
+    #         print(label_batch[i])
+    #         plt.imshow(image.numpy() * 256, cmap='gray')
+    #         plt.show()
     # mnist = tf.keras.datasets.mnist
     # (train_imgs, train_labels),(test_imgs, test_labels) = mnist.load_data()
     # train_imgs = train_imgs / 256
@@ -167,10 +169,11 @@ if __name__ == '__main__':
     # test_imgs = tf.reshape(test_imgs, [*(test_imgs.shape), 1])
 
     # vgg = VGG(num_of_classes)
-    vgg_spinal = VGG_Spinal(num_of_classes)
-    #vgg_transfer_spinal = VGG_Transfer_Spinal(num_of_classes, True, 25088//2, 100)
-    train_large(vgg_spinal)
-    #train_large(vgg_transfer_spinal)
+    # vgg_spinal = VGG_Spinal(num_of_classes)
+    vgg_transfer_spinal = VGG_Transfer_Spinal(num_of_classes, True, 25088//2, 100)
+    # train_large(vgg_spinal)
+    # train(vgg_spinal)
+    train_large(vgg_transfer_spinal)
     # train(vgg_fc)
     # train_food()
     # train_hh()

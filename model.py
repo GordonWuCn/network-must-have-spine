@@ -174,7 +174,7 @@ class VGG_Transfer_Spinal(tf.keras.Model):
     def __init__(self, num_classes, is_spinal=True, half_width=256, layer_width=512):
         super(VGG_Transfer_Spinal, self).__init__()
 
-        self.learning_rate = 0.00001
+        self.learning_rate = 0.001
 
         self.pretrained = tf.keras.applications.vgg19.VGG19(weights='imagenet', include_top=False)
         self.flatten = tf.keras.layers.Flatten()
