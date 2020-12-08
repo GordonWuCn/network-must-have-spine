@@ -6,7 +6,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from model import VGG, VGG_Spinal, VGG_Transfer_Spinal, DenseNet_Transfer_Spinal
-from preprocess import scratch_data, transfer_data, food, horses_or_humans, cifar_10
+from preprocess import scratch_data, transfer_data, food, horses_or_humans, cifar_10, load_prepared_data
 
 from tqdm import tqdm
 
@@ -15,9 +15,9 @@ experiment = Experiment(log_code=True)
 '''
 hyper params
 '''
-#data_path = '/home/gordonwu/Downloads/quickdraw'
-data_path = '/home/gordonwu0722/quickdraw'
-num_epoch = 100
+data_path = '/home/gordonwu/Downloads/quickdraw'
+# data_path = '/home/gordonwu0722/quickdraw'
+num_epoch = 300
 batch_size = 100
 num_of_classes = 24
 
@@ -42,6 +42,7 @@ def train(model):
                     print(loss)
         if epoch % 5 == 4:
             print(test(model))
+            vgg_spinal.save_weights('./checkpoints')
 
 
 def test(model):
@@ -111,7 +112,13 @@ def train_cifar_10(is_spinal=True):
 
 
 if __name__ == '__main__':
-    train_imgs, train_labels, test_imgs, test_labels, _ = scratch_data(data_path, num_of_classes, 10000)
+    # train_imgs, train_labels, test_imgs, test_labels, _ = scratch_data(data_path, num_of_classes, 1000)
+
+    train_imgs, train_labels, test_imgs, test_labels = load_prepared_data("./")
+    # print(train_imgs)
+    # print(train_labels)
+    # print(test_imgs)
+    # print(test_labels)
     #train_imgs, train_labels, test_imgs, test_labels, _ = transfer_data(data_path, num_of_classes, 10000)
 
     # image = train_imgs[0][:,:,0]
@@ -130,7 +137,7 @@ if __name__ == '__main__':
     # vgg = VGG(num_of_classes)
     vgg_spinal = VGG_Spinal(num_of_classes)
     # vgg_transfer_spinal = VGG_Transfer_Spinal(num_of_classes)
-    vgg_spinal.load_weights('./checkpoints')
+    # vgg_spinal.load_weights('./checkpoints')
     train(vgg_spinal)
     vgg_spinal.save_weights('./checkpoints')
     # train(vgg_transfer_spinal)

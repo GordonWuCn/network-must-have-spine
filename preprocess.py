@@ -4,6 +4,15 @@ import tensorflow_datasets as tfds
 import os
 import matplotlib.pyplot as plt
 
+def load_prepared_data(folder_path):
+    train_inputs = np.load(folder_path + "train_inputs.npy")
+    train_labels = np.load(folder_path + "train_labels.npy")
+    test_inputs = np.load(folder_path + "test_inputs.npy")
+    test_labels = np.load(folder_path + "test_labels.npy")
+    return tf.convert_to_tensor(train_inputs), \
+                tf.convert_to_tensor(train_labels),\
+                tf.convert_to_tensor(test_inputs),\
+                tf.convert_to_tensor(test_labels)
 
 def readData(path, num_classes=24, maxEty=10000, test_ratio=.3):
     id2label = {}
@@ -35,6 +44,7 @@ def readData(path, num_classes=24, maxEty=10000, test_ratio=.3):
     train_labels = tf.one_hot(train_labels, num_classes)
     test_labels = tf.one_hot(test_labels, num_classes)
 
+
     return train_inputs, train_labels, test_inputs, test_labels, id2label
 
 
@@ -42,6 +52,10 @@ def scratch_data(path, num_classes=24, maxEty=10000, test_ratio=.3):
     train_imgs, train_labels, test_imgs, test_labels, id2label = readData(path, num_classes, maxEty, test_ratio)
     train_imgs = tf.cast(train_imgs, tf.float32) / 256
     test_imgs = tf.cast(test_imgs, tf.float32) / 256
+    np.save("train_inputs.npy", train_imgs.numpy())
+    np.save("train_labels.npy", train_labels.numpy())
+    np.save("test_inputs.npy", test_imgs.numpy())
+    np.save("test_labels.npy", test_labels.numpy())
 
     return train_imgs, train_labels, test_imgs, test_labels, id2label
 

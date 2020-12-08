@@ -150,7 +150,7 @@ class VGG(tf.keras.Model):
 class VGG_Spinal(tf.keras.Model):
     def __init__(self, num_classes):
         super(VGG_Spinal, self).__init__()
-        self.optimizer = tf.keras.optimizers.Adam(0.0005)
+        self.optimizer = tf.keras.optimizers.Adam(0.0001)
         self.l1 = TwoConvPool(64, 64)
         self.l2 = TwoConvPool(128, 128)
         self.l3 = ThreeConvPool(256, 256, 256)
