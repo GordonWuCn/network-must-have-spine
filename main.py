@@ -16,8 +16,8 @@ experiment = Experiment(log_code=True)
 hyper params
 '''
 # data_path = '/home/gordonwu/Downloads/quickdraw'
-# data_path = '/home/gordonwu0722/quickdraw'
-num_epoch = 1
+data_path = '/home/gordonwu0722/quickdraw'
+num_epoch = 100
 batch_size = 100
 num_of_classes = 24
 
@@ -59,9 +59,9 @@ def train_large(model):
                 experiment.log_metric('loss', loss)
                 if idx % 10 == 0:
                     print(loss)
+        model.save_weights('./checkpoints')
         if epoch % 5 == 4:
             print(test_large(model))
-            model.save_weights('./checkpoints')
         if epoch == 19:
             model.pretrained.trainable = True
             model.optimizer = tf.keras.optimizers.Adam(learning_rate=1e-5)
@@ -87,7 +87,7 @@ def test_large(model):
         accuracy_sum = 0
         batch_cnt = 0
         for idx, data_batch in tqdm(enumerate(test_imgs)):
-            label_batch = test_labels[idx: idx + batch_size]
+            label_batch = test_labels[idx * batch_size: idx * batch_size + batch_size]
             logits = model(data_batch)
 
             accuracy_sum += model.accuracy_fn(label_batch, logits)
@@ -150,8 +150,9 @@ def train_cifar_10(is_spinal=True):
 if __name__ == '__main__':
     # train_imgs, train_labels, test_imgs, test_labels, _ = scratch_data(data_path, num_of_classes, 10000)
     # train_imgs, train_labels, test_imgs, test_labels, _ = scratch_data_large(data_path, num_of_classes, 10000)
-    train_imgs, train_labels, test_imgs, test_labels, _ = transfer_data_large(data_path, num_of_classes, 1000)
+    train_imgs, train_labels, test_imgs, test_labels, _ = transfer_data_large(data_path, num_of_classes, 10000)
     train_imgs = train_imgs.batch(batch_size)
+    test_imgs = test_imgs.batch(batch_size)
     train_imgs = train_imgs.prefetch(5)
     # for j, datas in enumerate(train_imgs):
     #     for i, data in enumerate(datas):
@@ -171,11 +172,14 @@ if __name__ == '__main__':
 
     # vgg = VGG(num_of_classes)
     # vgg_spinal = VGG_Spinal(num_of_classes)
-    vgg_transfer_spinal = VGG_Transfer_Spinal(num_of_classes, True, 25088//2, 100)
+    vgg_transfer_spinal = VGG_Transfer_Spinal(num_of_classes, True, 25088//2, 1024)
     # train_large(vgg_spinal)
     # train(vgg_spinal)
+    # vgg_transfer_spinal.load_weights('./checkpoints')
     train_large(vgg_transfer_spinal)
+    #print(test_large(vgg_transfer_spinal))
     vgg_transfer_spinal.save_weights('./checkpoints')
+    #test_large(vgg_transfer_spinal)
     # train(vgg_fc)
     # train_food()
     # train_hh()

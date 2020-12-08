@@ -71,12 +71,10 @@ def load_prepared_data(folder_path):
             tf.convert_to_tensor(test_labels)
 
 def transfer_data(path, num_classes=24, maxEty=10000, test_ratio=.3):
-    # train_imgs, train_labels, test_imgs, test_labels, id2label = readData(path, num_classes, maxEty, test_ratio)
-    train_imgs, train_labels, test_imgs, test_labels = 
+    train_imgs, train_labels, test_imgs, test_labels, id2label = readData(path, num_classes, maxEty, test_ratio)
     train_imgs = tf.image.resize(train_imgs, [224, 224])
     train_imgs = tf.concat([train_imgs] * 3, axis=3)
     train_imgs = tf.keras.applications.vgg19.preprocess_input(train_imgs)
-
 
     test_imgs = tf.image.resize(test_imgs, [224, 224])
     test_imgs = tf.concat([test_imgs] * 3, axis=3)
@@ -89,14 +87,14 @@ def transfer_data(path, num_classes=24, maxEty=10000, test_ratio=.3):
 def transfer_data_large(path, num_classes=24, maxEty=10000, test_ratio=.3):
     def transform(image):
         image = tf.reshape(image, [1, *image.shape])
-        image = image * 255
         image = tf.image.resize(image, [224, 224])
         image = tf.image.grayscale_to_rgb(image)
         image = tf.keras.applications.vgg19.preprocess_input(image)
         return image[0]
 
-    train_imgs, train_labels, test_imgs, test_labels = load_prepared_data("/home/gordonwu0722/quickdraw1000")
-
+    train_imgs, train_labels, test_imgs, test_labels = load_prepared_data("/home/gordonwu0722/quickdraw10000/")
+    #train_imgs, train_labels, test_imgs, test_labels, _ = readData(path, num_classes, maxEty, test_ratio)
+    
     train_imgs = tf.data.Dataset.from_tensor_slices(train_imgs)
     test_imgs = tf.data.Dataset.from_tensor_slices(test_imgs)
     train_imgs = train_imgs.map(transform, 6)
@@ -154,6 +152,7 @@ def cifar_10():
 
 
 if __name__ == '__main__':
-    train, test = cifar_10()
-    print(len(train))
-    print(len(test))
+    #train, test = cifar_10()
+    #print(len(train))
+    #print(len(test))
+    transfer_data_large("/home/gordonwu0722/quickdraw/", 24, 10000, 0.3)
