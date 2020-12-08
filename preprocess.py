@@ -60,9 +60,19 @@ def scratch_data_large(path, num_classes=24, maxEty=10000, test_ratio=.3):
 
     return train_imgs, train_labels, test_imgs, test_labels, id2label
 
-def transfer_data(path, num_classes=24, maxEty=10000, test_ratio=.3):
-    train_imgs, train_labels, test_imgs, test_labels, id2label = readData(path, num_classes, maxEty, test_ratio)
+def load_prepared_data(folder_path):
+    train_inputs = np.load(folder_path + "train_inputs.npy")
+    train_labels = np.load(folder_path + "train_labels.npy")
+    test_inputs = np.load(folder_path + "test_inputs.npy")
+    test_labels = np.load(folder_path + "test_labels.npy")
+    return tf.convert_to_tensor(train_inputs),\
+            tf.convert_to_tensor(train_labels),\
+            tf.convert_to_tensor(test_inputs),\
+            tf.convert_to_tensor(test_labels)
 
+def transfer_data(path, num_classes=24, maxEty=10000, test_ratio=.3):
+    # train_imgs, train_labels, test_imgs, test_labels, id2label = readData(path, num_classes, maxEty, test_ratio)
+    train_imgs, train_labels, test_imgs, test_labels = 
     train_imgs = tf.image.resize(train_imgs, [224, 224])
     train_imgs = tf.concat([train_imgs] * 3, axis=3)
     train_imgs = tf.keras.applications.vgg19.preprocess_input(train_imgs)
@@ -79,19 +89,20 @@ def transfer_data(path, num_classes=24, maxEty=10000, test_ratio=.3):
 def transfer_data_large(path, num_classes=24, maxEty=10000, test_ratio=.3):
     def transform(image):
         image = tf.reshape(image, [1, *image.shape])
+        image = image * 255
         image = tf.image.resize(image, [224, 224])
         image = tf.image.grayscale_to_rgb(image)
         image = tf.keras.applications.vgg19.preprocess_input(image)
         return image[0]
 
-    train_imgs, train_labels, test_imgs, test_labels, id2label = readData(path, num_classes, maxEty, test_ratio)
+    train_imgs, train_labels, test_imgs, test_labels = load_prepared_data("/home/gordonwu0722/quickdraw1000")
 
     train_imgs = tf.data.Dataset.from_tensor_slices(train_imgs)
     test_imgs = tf.data.Dataset.from_tensor_slices(test_imgs)
     train_imgs = train_imgs.map(transform, 6)
     test_imgs = test_imgs.map(transform, 6)
 
-    return train_imgs, train_labels, test_imgs, test_labels, id2label
+    return train_imgs, train_labels, test_imgs, test_labels, None
 
 
 def food():

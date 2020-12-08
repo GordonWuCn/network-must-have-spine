@@ -15,7 +15,7 @@ experiment = Experiment(log_code=True)
 '''
 hyper params
 '''
-data_path = '/home/gordonwu/Downloads/quickdraw'
+# data_path = '/home/gordonwu/Downloads/quickdraw'
 # data_path = '/home/gordonwu0722/quickdraw'
 num_epoch = 1
 batch_size = 100
@@ -61,6 +61,7 @@ def train_large(model):
                     print(loss)
         if epoch % 5 == 4:
             print(test_large(model))
+            model.save_weights('./checkpoints')
         if epoch == 19:
             model.pretrained.trainable = True
             model.optimizer = tf.keras.optimizers.Adam(learning_rate=1e-5)
@@ -149,9 +150,9 @@ def train_cifar_10(is_spinal=True):
 if __name__ == '__main__':
     # train_imgs, train_labels, test_imgs, test_labels, _ = scratch_data(data_path, num_of_classes, 10000)
     # train_imgs, train_labels, test_imgs, test_labels, _ = scratch_data_large(data_path, num_of_classes, 10000)
-    train_imgs, train_labels, test_imgs, test_labels, _ = transfer_data_large(data_path, num_of_classes, 10000)
+    train_imgs, train_labels, test_imgs, test_labels, _ = transfer_data_large(data_path, num_of_classes, 1000)
     train_imgs = train_imgs.batch(batch_size)
-    # train_imgs = train_imgs.prefetch(5)
+    train_imgs = train_imgs.prefetch(5)
     # for j, datas in enumerate(train_imgs):
     #     for i, data in enumerate(datas):
     #         image = data[:,:,0]
@@ -174,6 +175,7 @@ if __name__ == '__main__':
     # train_large(vgg_spinal)
     # train(vgg_spinal)
     train_large(vgg_transfer_spinal)
+    vgg_transfer_spinal.save_weights('./checkpoints')
     # train(vgg_fc)
     # train_food()
     # train_hh()
