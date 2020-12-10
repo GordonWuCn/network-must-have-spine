@@ -182,10 +182,14 @@ class VGG_Transfer_Spinal(tf.keras.Model):
             self.linear = SpinalLayer(num_classes, half_width, layer_width)
         else:
             self.linear = tf.keras.Sequential()
-            self.linear.add(tf.keras.layers.Dense(half_width * 2, activation='relu'))
-            self.linear.add(tf.keras.layers.Dense(half_width * 2, activation='relu'))
-            self.linear.add(tf.keras.layers.Dense(num_classes))
-            self.linear.add(tf.keras.layers.Softmax)
+            self.linear.add(tf.keras.layers.Dropout(0.5))
+            self.linear.add(tf.keras.layers.Dense(1024, activation='relu'))
+            self.linear.add(tf.keras.layers.BatchNormalization())
+            self.linear.add(tf.keras.layers.Dropout(0.5))
+            self.linear.add(tf.keras.layers.Dense(512, activation='relu'))
+            self.linear.add(tf.keras.layers.BatchNormalization())
+            self.linear.add(tf.keras.layers.Dropout(0.5))
+            self.linear.add(tf.keras.layers.Dense(num_classes, activation='softmax'))
 
         self.pretrained.trainable = False
         self.optimizer = tf.keras.optimizers.Adam(learning_rate=self.learning_rate)
@@ -197,7 +201,6 @@ class VGG_Transfer_Spinal(tf.keras.Model):
 
     def accuracy_fn(self, labels, logits):
         return tf.reduce_mean(tf.cast(tf.equal(tf.argmax(labels, 1), tf.argmax(logits, 1)), tf.float32))
-
 
 class DenseNet_Transfer_Spinal(tf.keras.Model):
     def __init__(self, num_classes, is_spinal=True, half_width=256, layer_width=512):

@@ -172,7 +172,7 @@ if __name__ == '__main__':
 
     # vgg = VGG(num_of_classes)
     # vgg_spinal = VGG_Spinal(num_of_classes)
-    vgg_transfer_spinal = VGG_Transfer_Spinal(num_of_classes, True, 25088//2, 1024)
+    vgg_transfer_spinal = VGG_Transfer_Spinal(num_of_classes, False, 25088//2, 1024)
     # train_large(vgg_spinal)
     # train(vgg_spinal)
     # vgg_transfer_spinal.load_weights('./checkpoints')
